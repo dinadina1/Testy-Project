@@ -48,10 +48,6 @@ const TestList = () => {
         try {
             if (navigator.clipboard) {
                 await navigator.clipboard.writeText(testUrl);
-                setCopyText('Copied');
-                setTimeout(() => {
-                    setCopyText('Copy Test Link');
-                }, 3000);
             } else {
                 // Fallback method
                 const textarea = document.createElement("textarea");
@@ -60,19 +56,11 @@ const TestList = () => {
                 textarea.select();
                 document.execCommand("copy");
                 document.body.removeChild(textarea);
-                setCopyText('Copied');
-                setTimeout(() => {
-                    setCopyText('Copy Test Link');
-                }, 3000);
             }
 
             toast.success('Test link copied to clipboard', {
                 position: 'bottom-center'
             });
-            setCopyText('Copied');
-            setTimeout(() => {
-                setCopyText('Copy Test Link');
-            }, 5000);
         } catch (err) {
             console.log(err);
             toast.error('Failed to copy the link', {
