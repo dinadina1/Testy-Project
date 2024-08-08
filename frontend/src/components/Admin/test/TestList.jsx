@@ -43,28 +43,40 @@ const TestList = () => {
         return { startPage, endPage };
     };
 
-    // function to copy link in clipboard
-    const copyLinkToClipboard = async (testUrl) => {
+    // Function to copy test link to clipboard
+    const copyToClipboard = async (testUrl) => {
         try {
-            await navigator.clipboard.writeText(testUrl)
-            toast('Link copied to clipboard', {
-                type: 'success',
-                position: 'bottom-center',
-                autoClose: 2000, // Close after 2 seconds
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(testUrl);
+                setCopyText('Copied');
+                setTimeout(() => {
+                    setCopyText('Copy Test Link');
+                }, 3000);
+            } else {
+                // Fallback method
+                const textarea = document.createElement("textarea");
+                textarea.value = testUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                setCopyText('Copied');
+                setTimeout(() => {
+                    setCopyText('Copy Test Link');
+                }, 3000);
+            }
+
+            toast.success('Test link copied to clipboard', {
+                position: 'bottom-center'
             });
+            setCopyText('Copied');
+            setTimeout(() => {
+                setCopyText('Copy Test Link');
+            }, 5000);
         } catch (err) {
-            toast('Failed to copy the link', {
-                type: 'error',
-                position: 'bottom-center',
-                autoClose: 2000, // Close after 2 seconds
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
+            console.log(err);
+            toast.error('Failed to copy the link', {
+                position: 'bottom-center'
             });
         }
     };
@@ -118,7 +130,7 @@ const TestList = () => {
                         tests && tests.length > 0 ? (
                             <div>
                                 {tests.map((test, index) => (
-                                    <Test key={index} test={test} copyLinkToClipboard={copyLinkToClipboard} handleDelete={handleDelete} />
+                                    <Test key={index} test={test} copyToClipboard={copyToClipboard} handleDelete={handleDelete} />
                                 ))}
                             </div>
                         ) : (
@@ -131,81 +143,81 @@ const TestList = () => {
                     {/* Pagination bar */}
                     {
                         tests?.length > 0 &&
-                    
-                    <div className="flex items-center justify-center gap-2 md:gap-4 p-4 overflow-x-auto">
-                        {/* First Button */}
-                        <button
-                            onClick={() => handlePageChange(1)}
-                            disabled={currentPage === 1}
-                            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
-                        >
-                            <span className='hidden lg:inline'>&larr;</span>  First
-                        </button>
-                        {/* Previous Button */}
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
-                        >
-                            <span className='hidden lg:inline'>&larr;</span> Prev
-                        </button>
 
-                        {/* Page Numbers */}
-                        <div className="flex items-center gap-1 md:gap-2">
-                            {startPage > 1 && (
-                                <>
+                        <div className="flex items-center justify-center gap-2 md:gap-4 p-4 overflow-x-auto">
+                            {/* First Button */}
+                            <button
+                                onClick={() => handlePageChange(1)}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+                            >
+                                <span className='hidden lg:inline'>&larr;</span>  First
+                            </button>
+                            {/* Previous Button */}
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+                            >
+                                <span className='hidden lg:inline'>&larr;</span> Prev
+                            </button>
+
+                            {/* Page Numbers */}
+                            <div className="flex items-center gap-1 md:gap-2">
+                                {startPage > 1 && (
+                                    <>
+                                        <button
+                                            onClick={() => handlePageChange(1)}
+                                            className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                        >
+                                            1
+                                        </button>
+                                        {startPage > 2 && (
+                                            <span className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-gray-500">...</span>
+                                        )}
+                                    </>
+                                )}
+                                {Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index).map((page) => (
                                     <button
-                                        onClick={() => handlePageChange(1)}
-                                        className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
                                     >
-                                        1
+                                        {page}
                                     </button>
-                                    {startPage > 2 && (
-                                        <span className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-gray-500">...</span>
-                                    )}
-                                </>
-                            )}
-                            {Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index).map((page) => (
-                                <button
-                                    key={page}
-                                    onClick={() => handlePageChange(page)}
-                                    className={`px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-                                >
-                                    {page}
-                                </button>
-                            ))}
-                            {endPage < totalPages && (
-                                <>
-                                    {endPage < totalPages - 1 && (
-                                        <span className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-gray-500">...</span>
-                                    )}
-                                    <button
-                                        onClick={() => handlePageChange(totalPages)}
-                                        className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
-                                    >
-                                        {totalPages}
-                                    </button>
-                                </>
-                            )}
+                                ))}
+                                {endPage < totalPages && (
+                                    <>
+                                        {endPage < totalPages - 1 && (
+                                            <span className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-gray-500">...</span>
+                                        )}
+                                        <button
+                                            onClick={() => handlePageChange(totalPages)}
+                                            className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Next Button */}
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+                            >
+                                Next <span className='hidden lg:inline'>&rarr;</span>
+                            </button>
+                            {/* Last Button */}
+                            <button
+                                onClick={() => handlePageChange(totalPages)}
+                                disabled={currentPage === totalPages}
+                                className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+                            >
+                                Last <span className='hidden lg:inline'>&rarr;</span>
+                            </button>
                         </div>
-
-                        {/* Next Button */}
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
-                        >
-                            Next <span className='hidden lg:inline'>&rarr;</span>
-                        </button>
-                        {/* Last Button */}
-                        <button
-                            onClick={() => handlePageChange(totalPages)}
-                            disabled={currentPage === totalPages}
-                            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
-                        >
-                            Last <span className='hidden lg:inline'>&rarr;</span>
-                        </button>
-                    </div>
                     }
                 </div>
             </div>
