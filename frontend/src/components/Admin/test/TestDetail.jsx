@@ -19,8 +19,26 @@ const TestDetail = () => {
     // Function to copy test link to clipboard
     const copyToClipboard = async (testUrl) => {
         try {
-            console.log(testUrl);            
-            await navigator.clipboard.writeText(testUrl);
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(testUrl);
+                setCopyText('Copied');
+                setTimeout(() => {
+                    setCopyText('Copy Test Link');
+                }, 3000);
+            } else {
+                // Fallback method
+                const textarea = document.createElement("textarea");
+                textarea.value = testUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                setCopyText('Copied');
+                setTimeout(() => {
+                    setCopyText('Copy Test Link');
+                }, 3000);
+            }
+
             toast.success('Test link copied to clipboard', {
                 position: 'bottom-center'
             });
@@ -30,13 +48,11 @@ const TestDetail = () => {
             }, 5000);
         } catch (err) {
             console.log(err);
-            
             toast.error('Failed to copy the link', {
                 position: 'bottom-center'
             });
         }
     };
-    
 
     const changeTestStatus = () => {
         dispatch(updateTest(testId, { status: selectedStatus }))
@@ -61,18 +77,18 @@ const TestDetail = () => {
                 </div>
             ) : (
                 <>
-                    
+
                     <div className="flex flex-col md:flex-row">
                         <Sidebar />
                         <div className="w-full md:w-5/6">
-                        <div className='flex justify-between mx-2 md:mx-5 p-2 md:p-3'>
-                        <Link to="/tests" className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            <span>Back</span>
-                        </Link>
-                    </div>
+                            <div className='flex justify-between mx-2 md:mx-5 p-2 md:p-3'>
+                                <Link to="/tests" className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                    <span>Back</span>
+                                </Link>
+                            </div>
                             <div className="p-0">
                                 <h1 className="text-2xl md:text-5xl ps-1 md:ps-6 mt-5 mb-10">
                                     Test #{test._id}
