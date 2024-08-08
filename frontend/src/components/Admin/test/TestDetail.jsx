@@ -19,6 +19,7 @@ const TestDetail = () => {
     // Function to copy test link to clipboard
     const copyToClipboard = async (testUrl) => {
         try {
+            console.log(testUrl);            
             await navigator.clipboard.writeText(testUrl);
             toast.success('Test link copied to clipboard', {
                 position: 'bottom-center'
@@ -28,6 +29,8 @@ const TestDetail = () => {
                 setCopyText('Copy Test Link');
             }, 5000);
         } catch (err) {
+            console.log(err);
+            
             toast.error('Failed to copy the link', {
                 position: 'bottom-center'
             });
