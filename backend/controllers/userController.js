@@ -168,7 +168,7 @@ exports.submitResponse = catchAsyncError(async (req, res, next) => {
   // find top rank
   if(topRank.userId === null){
     topRank.userId = response.userId._id;
-    topRank.score = score;
+    topRank.score = score.toFixed(2);
   } else {
     attendedUsers.forEach((user) => {
     if (user.score > topRank.score) {
