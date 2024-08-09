@@ -3,6 +3,6 @@
 
 <br/>
 
-#### Deployed URL : <a href="http://34.207.172.178:8500/" target="_blank">http://34.207.172.178:8500/</a>
+#### Deployed URL : <a href="http://34.207.172.178" target="_blank">http://34.207.172.178</a>
 
 #### API Documentation : <a href="https://documenter.getpostman.com/view/33767617/2sA3s1oBnk" target="_blank">https://documenter.getpostman.com/view/33767617/2sA3s1oBnk</a>
