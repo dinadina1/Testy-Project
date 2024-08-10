@@ -116,7 +116,7 @@ const UserNav = () => {
                     <p className="text-sm md:text-xl font-semibold ms-3 md:ms-10 my-auto">{test.title}</p>
                 </div>
                 <div className="flex md:me-5 p-2">
-                    <p id='timer' className="me-4 md:me-10 md:text-2xl font-bold my-auto"></p>
+                    <p id='timer' className="me-4 md:me-10 md:text-2xl font-bold my-auto">00:00:00</p>
                     <button onClick={toggleModal} id="open-modal-button" className="px-3 md:px-10 py-2 bg-blue-600 text-white text-sm md:text-lg font-semibold rounded-xl active:bg-blue-500">Submit</button>
                 </div>
             </nav>
