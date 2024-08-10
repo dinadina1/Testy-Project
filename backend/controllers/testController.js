@@ -11,10 +11,10 @@ exports.newTest = catchAsyncError(async (req, res, next) => {
   const test = await Test.create(req.body);
 
   let testUrl;
-  if(process.env.NODE_ENV === 'production'){
+  if(process.env.NODE_ENV === 'development'){
     testUrl = `${req.protocol}://${req.get('host')}/${test._id}`;
   }else{
-    testUrl = `http://localhost:3000/${test._id}`;
+    testUrl = `http://34.207.172.178/${test._id}`;
   }
 
   test.testUrl = testUrl;

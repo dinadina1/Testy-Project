@@ -202,7 +202,7 @@ const NewTest = () => {
                                 </div>
 
                                 <div className="my-5">
-                                    <label htmlFor="duration" className="w-full text-lg text-gray-600 font-semibold">Duration</label>
+                                    <label htmlFor="duration" className="w-full text-lg text-gray-600 font-semibold">Duration in minutes</label>
                                     <input
                                         type="number"
                                         id="duration"
