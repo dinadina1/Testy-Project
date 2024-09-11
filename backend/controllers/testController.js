@@ -14,7 +14,7 @@ exports.newTest = catchAsyncError(async (req, res, next) => {
   if(process.env.NODE_ENV === 'development'){
     testUrl = `${req.protocol}://${req.get('host')}/${test._id}`;
   }else{
-    testUrl = `http://34.227.114.24/${test._id}`;
+    testUrl = `http://3.83.14.13/${test._id}`;
   }
 
   test.testUrl = testUrl;
