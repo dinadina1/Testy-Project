@@ -12,7 +12,7 @@ exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   // return message if token not found
   if (!jwtToken) {
     return next(new ErrorHandler("Login first to handle the resource", 401));
-  }
+  } 
 
   // verify token
   const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET_KEY);
