@@ -31,12 +31,12 @@ app.use('/api/v1/question', require('./routes/question'));
 // user routes
 app.use('/api/v1/user', require('./routes/user'));
 
-// if(process.env.NODE_ENV === "production") {
+if(process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
     app.get('*', (req, res) =>{
         res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'))
     })
-// }
+}
 
 // use error middleware
 app.use(require('./middleware/error'));
