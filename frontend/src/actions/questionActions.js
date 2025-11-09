@@ -90,7 +90,7 @@ export const newQuestions = (testId, formData) => async (dispatch) => {
         });
         dispatch(newQuestionsSuccess(data.questions));
     } catch (error) {
-        dispatch(newQuestionsFail(error.response.data.message));
+        dispatch(newQuestionsFail(error.response?.data?.message || 'Upload failed'));
     }
 }
 
@@ -106,6 +106,24 @@ export const updateQuestion = (questionId, formData) => async (dispatch) => {
         dispatch(updateQuestionSuccess());
     } catch (error) {
         dispatch(updateQuestionFail(error.response.data.message));
+    }
+}
+
+// download template
+export const downloadTemplate = () => async () => {
+    try {
+        const response = await axios.get('/api/v1/question/admin/template', {
+            responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'questions_template.csv');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    } catch (error) {
+        console.error('Error downloading template:', error);
     }
 }
 

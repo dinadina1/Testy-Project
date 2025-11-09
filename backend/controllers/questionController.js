@@ -33,9 +33,9 @@ exports.newQuestions = catchAsyncError(async (req, res, next) => {
 
   let newQuestions = req.body.map((data) => {
     data.createdBy = req.user.id;
-    data.test = req.params.testId
+    data.test = req.params.testId;
     return data;
-  })
+  });
 
   // insert array
   const bulkQuestions = await Question.insertMany(newQuestions);
@@ -57,8 +57,8 @@ exports.newQuestions = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "Questions created successfully",
     count: bulkQuestions.length,
-    Questions: bulkQuestions
-  })
+    questions: bulkQuestions
+  });
 });
 
 // get question - /api/v1/question/:testId?page=1
@@ -150,4 +150,16 @@ exports.updateQuestion = catchAsyncError(async (req, res, next) => {
     message: "Question updated successfully",
     question
   });
+});
+
+// download sample template - /api/v1/question/admin/template
+exports.downloadTemplate = catchAsyncError(async (req, res, next) => {
+  const csvContent = `questionText,option1,option2,option3,option4,rightAnswer,difficulty
+"What is 2+2?","3","4","5","6","4","easy"
+"What is the capital of France?","London","Berlin","Paris","Madrid","Paris","medium"
+"Which planet is closest to the sun?","Venus","Mercury","Earth","Mars","Mercury","hard"`;
+  
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="questions_template.csv"');
+  res.status(200).send(csvContent);
 });

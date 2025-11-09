@@ -2,17 +2,19 @@ import { useDispatch } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../layout/Sidebar';
 import { useSelector } from 'react-redux';
-import { deleteQuestion, getQuestionsParticularTest } from '../../../actions/questionActions';
+import { deleteQuestion, getQuestionsParticularTest, newQuestions, downloadTemplate } from '../../../actions/questionActions';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { clearIsQuestionDeleted, clearQuestionError } from '../../../slices/questionSlice';
+import { clearIsQuestionDeleted, clearQuestionError, clearIsQuestionCreated } from '../../../slices/questionSlice';
 
 const QuestionList = () => {
     const dispatch = useDispatch();
     const { tests = [] } = useSelector(state => state.testState);
-    const { questions = [], isDeleted, error } = useSelector(state => state.questionState);
+    const { questions = [], isDeleted, error, isCreated, loading } = useSelector(state => state.questionState);
 
     const [testId, setTestId] = useState('');
+    const [uploadFile, setUploadFile] = useState(null);
+    const [fileInputKey, setFileInputKey] = useState(0);
 
     const getQuestions = () => {
         if (testId) {
@@ -38,6 +40,78 @@ const QuestionList = () => {
         }
     }
 
+    const handleFileUpload = (e) => {
+        setUploadFile(e.target.files[0]);
+    };
+
+    const parseCSV = (csvText) => {
+        const lines = csvText.split('\n').filter(line => line.trim());
+        if (lines.length < 2) throw new Error('CSV must have header and at least one data row');
+        
+        return lines.slice(1).map(line => {
+            // Simple CSV parsing - handles quoted values
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            if (values.length < 7) throw new Error('Each row must have 7 columns');
+            
+            const question = {
+                questionText: values[0],
+                options: [
+                    { optionText: values[1], option: values[1] === values[5] },
+                    { optionText: values[2], option: values[2] === values[5] },
+                    { optionText: values[3], option: values[3] === values[5] },
+                    { optionText: values[4], option: values[4] === values[5] }
+                ],
+                rightAnswer: values[5],
+                rightOption: [values[1] === values[5], values[2] === values[5], values[3] === values[5], values[4] === values[5]],
+                difficulty: values[6].toLowerCase() || 'medium'
+            };
+            return question;
+        });
+    };
+
+    const handleUpload = () => {
+        if (!testId) {
+            toast('Please select a test first', { type: 'warning', position: 'bottom-center' });
+            return;
+        }
+        if (!uploadFile) {
+            toast('Please select a file to upload', { type: 'warning', position: 'bottom-center' });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const csvText = e.target.result;
+                const parsedQuestions = parseCSV(csvText);
+                dispatch(newQuestions(testId, parsedQuestions));
+            } catch (error) {
+                toast('Error parsing CSV file', { type: 'error', position: 'bottom-center' });
+            }
+        };
+        reader.readAsText(uploadFile);
+    };
+
+    const handleDownloadTemplate = () => {
+        dispatch(downloadTemplate());
+    };
+
     useEffect(() => {
         if (isDeleted) {
             toast('Deleted Successfully', {
@@ -47,6 +121,16 @@ const QuestionList = () => {
             dispatch(getQuestionsParticularTest(testId));
             dispatch(clearIsQuestionDeleted());
         }
+        if (isCreated) {
+            toast('Questions uploaded successfully', {
+                type: 'success',
+                position: 'bottom-center',
+            });
+            dispatch(getQuestionsParticularTest(testId));
+            dispatch(clearIsQuestionCreated());
+            setUploadFile(null);
+            setFileInputKey(prev => prev + 1);
+        }
         if (error) {
             toast(error, {
                 type: 'error',
@@ -54,7 +138,7 @@ const QuestionList = () => {
             });
             dispatch(clearQuestionError());
         }
-    }, [isDeleted, error, dispatch, testId]);
+    }, [isDeleted, isCreated, error, dispatch, testId]);
 
     return (
         <>
@@ -81,6 +165,40 @@ const QuestionList = () => {
                                     ))}
                                 </select>
                                 <button onClick={getQuestions} className="py-2 px-4 text-white bg-green-400 font-semibold rounded">Search</button>
+                            </div>
+                        </div>
+
+                        {/* Upload Section */}
+                        <div className="bg-gray-50 p-4 md:ms-44 mt-4 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-700">Bulk Upload Questions</h3>
+                            <div className="flex flex-col gap-3">
+                                <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+                                    <input
+                                        key={fileInputKey}
+                                        type="file"
+                                        accept=".csv"
+                                        onChange={handleFileUpload}
+                                        className="text-sm p-2 border rounded bg-white w-full md:w-auto"
+                                    />
+                                    <button
+                                        onClick={handleUpload}
+                                        disabled={loading || !uploadFile}
+                                        className="py-2 px-4 text-white bg-green-500 font-semibold rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {loading ? 'Uploading...' : 'Upload Questions'}
+                                    </button>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        onClick={handleDownloadTemplate}
+                                        className="py-2 px-4 text-blue-600 border border-blue-600 font-semibold rounded hover:bg-blue-50 w-fit text-sm"
+                                    >
+                                        📥 Download Sample Template
+                                    </button>
+                                    <p className="text-xs text-gray-500">
+                                        Upload CSV with columns: questionText, option1, option2, option3, option4, rightAnswer, difficulty
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
